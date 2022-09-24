@@ -26,6 +26,16 @@ router.get("/all", validateToken, async (req, res) => {
   }
 });
 
+
+router.get("/alldata", validateToken, async (req, res) => {
+  try {
+    const data = await contacts.find({ userid: req.user })
+    res.json(data);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 router.post("/add", validateToken, async (req, res) => {
   try {
     let input = Array.isArray(req.body);
@@ -66,17 +76,36 @@ router.post("/add", validateToken, async (req, res) => {
 router.post("/delete", validateToken, async (req, res) => {
   try {
     const datas = req.body;
-
-    const data = await contacts.find({ userid: req.user });
-    if (data) {
-      datas.map(async (ids) => {
-        await contacts.deleteOne({ _id: ids.id });
-      });
-      res.json({ message: "success", data });
+    if (datas.length > 0) {
+      const data = await contacts.find({ userid: req.user });
+      if (data) {
+        datas.map(async (ids) => {
+          await contacts.deleteOne({ _id: ids.id });
+        });
+        res.json({ message: "success", data });
+      }
+    } else {
+      res.json("not deleted");
     }
   } catch (e) {
     res.status(400).json({ message: err.message });
   }
 });
 
+router.post("/sdelete", validateToken, async (req, res) => {
+  try {
+    const datas = req.body;
+    if (datas[0].id != "" && datas.length > 0) {
+      const data = await contacts.find({ userid: req.user });
+      if (data) {
+        datas.map(async (ids) => {
+          await contacts.deleteOne({ _id: ids.id });
+        });
+        res.json({ message: "success", data });
+      }
+    }
+  } catch (e) {
+    res.status(400).json({ message: err.message });
+  }
+});
 module.exports = router;
